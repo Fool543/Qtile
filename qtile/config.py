@@ -34,6 +34,7 @@ from libqtile import hook
 
 mod = "mod4"
 terminal = guess_terminal()
+terminal1 = "alacritty --option font.size=8 window.opacity=0.6 --command fish"
 
 keys = [
     # A list of available commands that can be bound to keys can be found
@@ -67,7 +68,7 @@ keys = [
         lazy.layout.toggle_split(),
         desc="Toggle between split and unsplit sides of stack",
     ),
-    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    Key([mod], "Return", lazy.spawn(terminal1), desc="Launch terminal"),
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
@@ -76,9 +77,16 @@ keys = [
     # Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
     
     # Custom KeyBindings
-    Key([mod], "r", lazy.spawn("rofi -show drun"), desc="Spawn Rofi"),
+    Key([mod], "d", lazy.spawn("rofi -show drun -config /home/ard/.config/rofi/launchers/type-1/style-8.rasi"), desc="Spawn Rofi"),
+    Key([mod], "p", lazy.spawn("/home/ard/.config/rofi/powermenu/type-1/powermenu.sh"), desc="Spawn Rofi"),
     Key([mod], "f", lazy.spawn("pcmanfm"), desc="Spawn File Manager"),
-    Key([mod], "d", lazy.spawn("brave-browser"), desc="Spawn Browser"),
+    Key([mod], "b", lazy.spawn("brave"), desc="Spawn Browser"),
+    Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl set +10%")),
+    Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl set 10%-")),
+    Key([], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -3%")),
+    Key([], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +3%")),
+    Key([], "XF86AudioMute", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")),
+    Key([], "Print", lazy.spawn("flameshot gui")),
 ]
 
 groups = [Group(i) for i in "123456789"]
@@ -108,9 +116,9 @@ for i in groups:
     )
 
 layouts = [
-    layout.MonadTall(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=2, margin=8),
-    layout.Max(border_focus=["d75f5f"], border_width=2, margin=8),
-    # layout.Column(),
+    layout.MonadTall(border_focus="#CF9FFF" ,border_normal="#808080" ,border_width=2, margin=10),
+    layout.Max(border_focus=["#CF9FFF"], border_width=2, margin=10),
+    layout.Columns(border_focus="#CF9FFF" ,border_normal="#808080", border_width=2, margin=10),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
@@ -128,6 +136,8 @@ widget_defaults = dict(
     font="sans",
     fontsize=12,
     padding=3,
+    background="#000000",
+    foreground="#000000",
 )
 extension_defaults = widget_defaults.copy()
 
@@ -141,21 +151,21 @@ screens = [
                 widget.WindowName(),
                 widget.Chord(
                     chords_colors={
-                        "launch": ("#ff0000", "#ffffff"),
+                        "launch": ("#ff-0001", "#000000"),
                     },
                     name_transform=lambda name: name.upper(),
                 ),
                 widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#000000"),
                 # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
                 # widget.StatusNotifier(),
-                widget.Systray(),
                 widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
                 widget.QuickExit(),
+                # widget.Systray(),
             ],
-            24,
-            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
+            1,
+            # border_width=[1, 0, 2, 0],  # Draw top and bottom borders
+            # border_color=["ff-01ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
     ),
 ]
@@ -182,7 +192,8 @@ floating_layout = layout.Floating(
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-    ]
+    ],
+    border_focus="#CF9FFF", border_normal="#000000" ,border_width=1
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
@@ -200,6 +211,7 @@ def autostart():
 def autorestart():
     home = os.path.expanduser('~/.config/qtile/autorestart.sh')
     subprocess.Popen([home])
+    bottom.show(false)
 
 
 # If things like steam games want to auto-minimize themselves when losing
